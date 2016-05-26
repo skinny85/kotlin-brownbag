@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Kotlin Primer</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/custom-white.css">
@@ -32,7 +32,9 @@
 
 					<h3>How to live on the bleeding edge without cutting yourself</h3>
 
-					<h6>May 2016</h6>
+					<p>Adam Ruka</p>
+
+					<p>May 2016</p>
 				</section>
 
 				<section>
@@ -43,8 +45,234 @@
 					</p>
 
 					<p>
-						Please don't take it too seriously, and know that I like all of the languages mentioned in the talk (and yes, that includes Java too).
+						Please don't take it too seriously, and know that I like all of the languages mentioned in the talk (including Java!).
 					</p>
+				</section>
+
+				<section>
+					<h2>What is Kotlin?</h2>
+
+					<p>
+						<img src="img/kotlin-logo.png">
+					</p>
+
+					<p>
+						<img src="img/jetbrains-logo.jpeg">
+					</p>
+
+					<p>
+						<img src="img/jvm-logo.png">
+						<img style="width: 10%;" src="img/js-logo.png">
+					</p>
+				</section>
+
+				<section>
+					<h2>Timeline</h2>
+
+					<!-- <p>
+						<img src="img/kotlin-jetbrains-logo-sprite.png">
+					</p> -->
+
+					<ul>
+						<li>July 2010 - start of the project</li>
+						<li>July 2011 - public announcement</li>
+						<li>February 2012 - JetBrains open sources the project</li>
+						<li>February 15 2016 - 1.0 released</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Let's talk about Java</h2>
+
+					<p class="fragment">
+						"Java is not a perfect programming language"
+					</p>
+				</section>
+
+				<section>
+					<h2>Java's imperfections</h2>
+
+					<p>
+						Verbosity
+					</p>
+
+					<pre><code data-trim>
+						VeryLongClassName veryLongClassName = new VeryLongClassName();
+
+@Test
+public void thisIsMyTest() throws Exception {
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Java's imperfections</h2>
+
+					<p>
+						Boilerplate
+					</p>
+
+					<pre><code data-trim>
+						public final class Person {
+	private final String name;
+	private final int age;
+
+	// 1. (Public) Constructor
+	// 2. Two getters
+	// 3. toString
+	// 4. equals
+	// 5. hashCode
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Java's imperfections</h2>
+
+					<p>
+						Generics
+					</p>
+
+					<pre><code data-trim>
+						&lt;X extends String&gt; X getString();
+&lt;X extends CharSequence&gt; X getCharSequence();
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+Integer i = getString(); // fails to compile, makes sense
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+Integer j = getCharSequence(); // compiles!
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Java's imperfections</h2>
+
+					<p>
+						Legacy baggage
+					</p>
+
+					<pre><code data-trim>
+List rawList = new ArrayList();
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+						String[] stringArray = {"a", "b"};
+Object[] objectArray = stringArray;
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Let's talk about Scala</h2>
+
+					<p class="fragment">
+						"Scala is more than a perfect programming language"
+					</p>
+				</section>
+
+				<section>
+					<h2>Scala's goals</h2>
+
+					<ul>
+						<li>combine the functional and object-oriented paradigms</li>
+						<li>enable higher degrees of safety through a powerful type system</li>
+						<li>allow the language itself to be extended through operators, implicits and macros</li>
+						<li>be a testbed of programming language research (Dotty)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Scala's shortcomings</h2>
+
+					<p>
+						XML literals
+					</p>
+
+					<pre><code data-trim>
+scala> val hello = <p>Hello, world</p>
+hello: scala.xml.Elem = <p>Hello, world</p>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Scala's shortcomings</h2>
+
+					<p>
+						Complicated syntax
+					</p>
+
+					<pre><code data-trim>
+					seq foreach println
+seq.foreach{println}
+seq.foreach(println)
+seq.foreach{println(_)}
+seq.foreach(println(_))
+seq.foreach(x => println(x))
+seq.foreach(x: Int => println(x))
+seq foreach{x: Int => println(x)}
+seq.foreach{x: Int => println(x)}
+seq foreach{case x => println(x)}
+seq.foreach{case x => println(x)}
+seq foreach{case x: Int => println(x)}
+seq.foreach{case x: Int => println(x)}
+					</code></pre>
+
+					<p style="font-size: small;">
+						© Tomasz Nurkiewicz 2014
+					</p>
+				</section>
+
+				<section>
+					<h2>Scala's shortcomings</h2>
+
+					<p>
+						Complicated language
+					</p>
+
+					<pre><code data-trim>
+				import scalaz._
+import scalaz.std.list._
+import scalaz.syntax.monad._
+import scalaz.syntax.monoid._
+import scalaz.syntax.traverse.{ToFunctorOps =&gt; _, _}
+
+class Foo[F[+_] : Monad, A, B](val execute: Foo.Request[A] =&gt; F[B],
+    val joins: Foo.Request[A] =&gt; B =&gt; List[Foo.Request[A]])
+    (implicit J: Foo.Join[A, B]) {
+  def bar: Foo[({type l[+a]=WriterT[F, Log[A, B], a]})#l, A, B] = {
+    type TraceW[FF[+_], +AA] = WriterT[FF, Log[A, B], AA]
+    def execute(request: Request[A]): WriterT[F, Log[A, B], B] =
+        self.execute(request).liftM[TraceW] :++&gt;&gt;
+          (repr =&gt; List(request -&gt; request.response(
+            repr, self.joins(request)(repr))))
+					</code></pre>
+
+					<p style="font-size: small;">
+						© Jim Plush 2015
+					</p>
+				</section>
+
+				<section>
+					<img src="img/scale1.png">
+				</section>
+
+				<section>
+					<img src="img/scale2.png">
+				</section>
+
+				<section>
+					<img src="img/scale3.png">
+				</section>
+
+				<section>
+					<h2>Kotlin's goals</h2>
+
+					<ul>
+						<li>keep the language small and accessible</li>
+						<li>fast compilation times</li>
+						<li>small runtime</li>
+						<li>great Java interop (both ways)</li>
+					</ul>
 				</section>
 			</div>
 		</div>
@@ -55,6 +283,8 @@
 		<script>
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
+				controls: false,
+				transition: 'none',
 				history: true,
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
