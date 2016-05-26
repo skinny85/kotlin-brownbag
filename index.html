@@ -41,7 +41,7 @@
 					<h2>Disclaimer</h2>
 
 					<p>
-						In this talk I might inadverently insult your favorite programming language.
+						In this talk I might inadvertently insult your favorite programming language.
 					</p>
 
 					<p>
@@ -268,11 +268,253 @@ class Foo[F[+_] : Monad, A, B](val execute: Foo.Request[A] =&gt; F[B],
 					<h2>Kotlin's goals</h2>
 
 					<ul>
+						<li>improve on Java's major pain points</li>
 						<li>keep the language small and accessible</li>
 						<li>fast compilation times</li>
 						<li>small runtime</li>
 						<li>great Java interop (both ways)</li>
 					</ul>
+				</section>
+
+				<section>
+					<h2>Syntax</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+public class Person(nameParam: String, val age: Int) {
+    private val name = nameParam
+
+    constructor(nameParam: String) : this(nameParam, -1)
+
+    init {
+        if (nameParam.isEmpty())
+            throw IllegalArgumentException("Name can't be empty!")
+    }
+
+    fun getName(): String {
+        //return nameParam; // would not compile
+        return name
+    }
+
+    override fun hashCode() =
+        if (age == -1) -2 else name.hashCode() + age
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Syntax</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+object Collections : Utils() {
+    fun sort(col: Collection&lt;Int&gt;): Unit {
+    	//...
+
+    fun &lt;T&gt; map(col: Collection&lt;T&gt;, op: (T) -&gt; T): Collection&lt;T&gt; {
+        //...
+    }
+
+    fun increment(col: Collection&lt;Int&gt; = emptyList()) =
+        map(col, { i -&gt; i + 1 })
+
+    fun double(col: Collection&lt;Int&gt;) =
+        map(col = col) { it * 2 }
+    }
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Null safety</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+//var str: String = null // does not compile!
+var str: String = "str"
+
+val maybeStr: String?
+maybeStr = null
+
+//str = maybeStr // does not compile!
+
+// maybeStr.length // does not compile!
+val maybeLenght: Int? = maybeStr?.substring(1, 2)?.length
+val len: Int = maybeStr!!.length // ride the lightning
+
+str = maybeStr ?: ""
+
+val javaStr: String? = java.lang.Object().toString()
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Value classes</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+data class Person(val name: String, val age: Int)
+
+// 1. equals(), hashCode()
+// 2. toString()
+// 3. getters
+// 4. copy()
+// 5. destructuring declarations:
+
+val (name, age) = Person("Adam", 22)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Flow-aware typing</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+val obj: Any = "str"
+if (obj is String) {
+    obj.substring(1, 2)
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Algebraic Data Types</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+sealed class Expr {
+    class Const(val number: Double) : Expr() 
+    class Sum(val e1: Expr, val e2: Expr) : Expr()
+    object NotANumber : Expr()
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Pattern Matching</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+fun eval(expr: Expr): Double = when (expr) {
+    is Expr.Const   -> expr.number
+    is Expr.Sum     -> eval(expr.e1) + eval(expr.e2)
+    Expr.NotANumber -> Double.NaN
+    // the `else` clause is not required
+    // because we've covered all the cases
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Extension Methods</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+fun MutableList&lt;Int&gt;.swap(index1: Int, index2: Int) {
+    val tmp = this[index1] // 'this' corresponds to the list
+    this[index1] = this[index2]
+    this[index2] = tmp
+}
+
+val list = mutableListOf(1, 2, 3)
+list.swap(0, 2)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Operator Overloading</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+class IntVector {
+    operator fun plus(other: IntVector): IntVector = //...
+    
+    operator fun get(i: Int, j: Int) = //...
+}
+
+val v1 = IntVector()
+val v2 = IntVector()
+v1 + v2
+v1[1, 2]
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Type-safe builders</h2>
+
+					<pre><code data-trim style="max-height: 550px;">
+fun result(args: Array&lt;String&gt;) =
+    html {
+        head {
+            title {+"XML encoding with Kotlin"}
+        }
+        body {
+            h1 {+"XML encoding with Kotlin"}
+            a(href = "http://kotlinlang.org") {+"Kotlin"}
+            p {
+                +"This is some"
+                b {+"mixed"}
+                + "text. For more see the"
+                a(href = "http://kotlinlang.org") {+"Kotlin"}
+                +"project"
+            }
+            p {
+                for (arg in args)
+                    +arg
+            }
+        }
+    }
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Automatic Delegation</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+interface Delegate {
+    //...
+}
+
+class Proxy(delegate: Delegate) : Delegate by delegate
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Function awesomeness</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+package com.my.company;
+
+fun main(args: Array&lt;String&gt;) {
+    println("Hello World!")
+}
+
+fun sum(list: List&lt;Int&gt;): Int {
+    fun sum(list: List&lt;Int&gt;, total: Int): Int =
+            if (list.isEmpty()) total
+            else sum(list.drop(1), total + list.first())
+
+    return sum(list, 0)
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Strings awesomeness</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+"""
+    this is a raw string
+    | !!!!""".trimMargin()
+
+// String interpolation
+
+data class Person(val name: String, val age: Int) {
+    fun sign() {
+        println("I, $name, aged ${this.age}, hereby declare...")
+    }
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>That's all I had!</h2>
+
+					<p>I've barely scratched the surface</p>
+					<p>For more, visit kotlinlang.org</p>
+					<p>Thanks for coming</p>
+					<p>Questions?</p>
 				</section>
 			</div>
 		</div>
