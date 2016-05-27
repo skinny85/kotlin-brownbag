@@ -509,6 +509,51 @@ data class Person(val name: String, val age: Int) {
 				</section>
 
 				<section>
+					<h2>Java interop</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+@RestController
+@RequestMapping("/dtw/api/episodes")
+class EpisodeController @Autowired constructor(
+        val episodeRepository: EpisodeSpringRepository) {
+    @RequestMapping(method = arrayOf(RequestMethod.GET),
+        produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
+    fun episodes(@PageableDefault(size = 25) pageable: Pageable,
+        assembler: PagedResourcesAssembler&lt;EpisodeEntity&gt;):
+            HttpEntity&lt;PagedResources&lt;Resource&lt;EpisodeEntity&gt;&gt;&gt; {
+        val page = episodeRepository.findByOrderByIdDesc(pageable)
+
+        return ResponseEntity(assembler.toResource(page),
+            HttpStatus.OK)
+    }
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Java interop</h2>
+
+					<pre><code data-trim style="max-height: 500px;">
+@Entity(name = "Episode")
+open class EpisodeEntity(@field:Id val id: Long,
+                         val title: String,
+                         @field:JsonDeserialize(using = LocalDateDeserializer::class)
+                         @field:JsonSerialize(using = LocalDateSerializer::class)
+                         val releaseDate: LocalDate,
+                         val description: String,
+                         val url: String) {
+    private constructor() : this(0, "", LocalDate.of(2016, 5, 5), "", "")
+
+    override fun toString(): String {
+        return "Episode(id=$id,title='$title',
+            releaseDate=$releaseDate,
+            description='$description',url='$url')"
+    }
+}
+					</code></pre>
+				</section>
+
+				<section>
 					<h2>That's all I had!</h2>
 
 					<p>I've barely scratched the surface</p>
